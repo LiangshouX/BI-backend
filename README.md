@@ -1,80 +1,137 @@
-# SpringBoot 项目初始模板
+<p align="center">
+<a>
+    <img src="https://img.shields.io/badge/Spring Boot-2.7.2-brightgreen.svg" alt="Spring Boot">
+    <img src="https://img.shields.io/badge/MySQL-8.0.20-orange.svg" alt="MySQL">
+    <img src="https://img.shields.io/badge/Java-1.7.0__371-blue.svg" alt="Java">
+    <img src="https://img.shields.io/badge/Redis-7.0.9-red.svg" alt="Redis">
+    <img src="https://img.shields.io/badge/RabbitMQ-3.9.11-orange.svg" alt="RabbitMQ">
+    <img src="https://img.shields.io/badge/MyBatis--Plus-3.5.2-blue.svg" alt="MyBatis-Plus">
+    <img src="https://img.shields.io/badge/Redisson-3.21.3-yellow.svg" alt="Redisson">
+    <img src="https://img.shields.io/badge/Gson-3.9.1-blue.svg" alt="Gson">
+    <img src="https://img.shields.io/badge/MyBatis-2.2.2-yellow.svg" alt="MyBatis">
+</a>
+</p>
 
-> 作者：[程序员鱼皮](https://github.com/liyupi)
-> 仅分享于 [编程导航知识星球](https://yupi.icu)
+# AIGC智能数据分析平台
 
-基于 Java SpringBoot 的项目初始模板，整合了常用框架和主流业务的示例代码。
+> By:	Liangshou		
+>
+> Conduct By:	[编程导航知识星球](https://yupi.icu) 
+>
+> Date:	2023.10
 
-只需 1 分钟即可完成内容网站的后端！！！大家还可以在此基础上快速开发自己的项目。
+
+
+本项目仅开发了基础的平台后端。将在后续开发过程中进一步探索完善。
 
 [toc]
 
-## 模板特点
+## 项目介绍
 
-### 主流框架 & 特性
+### 1. 简介
 
-- Spring Boot 2.7.x（贼新）
-- Spring MVC
-- MyBatis + MyBatis Plus 数据访问（开启分页）
-- Spring Boot 调试工具和项目处理器
-- Spring AOP 切面编程
-- Spring Scheduler 定时任务
-- Spring 事务注解
+基于 Spring Boot + MQ + AIGC 的智能数据分析平台。结合 AIGC，用户只需要导入原始数据、输入分析诉求，就能自动生成可视化图表及分析结论，实现数据分析降本增效。
 
-### 数据存储
+> AIGC： AI生成内容
 
-- MySQL 数据库
-- Redis 内存数据库
-- Elasticsearch 搜索引擎
-- 腾讯云 COS 对象存储
+### 2. 技术选型
 
-### 工具类
+* Java Spring Boot（使用[编程导航知识星球](https://yupi.icu) 提供发热模版来初始化）
+* MySQL数据库
+* MyBatis-plus 及 MybatX自动生成
+* Redis + Redisson限流
+* RabbitMQ消息队列
+* [鱼聪明](yucongming.com) AI SDK
+* Easy Excel表格数据处理
+* Swagger + Knife4j 接口文档生成
 
-- Easy Excel 表格处理
-- Hutool 工具库
-- Gson 解析库
-- Apache Commons Lang3 工具类
-- Lombok 注解
-
-### 业务特性
-
-- Spring Session Redis 分布式登录
-- 全局请求响应拦截器（记录日志）
-- 全局异常处理器
-- 自定义错误码
-- 封装通用响应类
-- Swagger + Knife4j 接口文档
-- 自定义权限注解 + 全局校验
-- 全局跨域处理
-- 长整数丢失精度解决
-- 多环境配置
+## 项目架构
 
 
-## 业务功能
 
-- 提供示例 SQL（用户、帖子、帖子点赞、帖子收藏表）
-- 用户登录、注册、注销、更新、检索、权限管理
-- 帖子创建、删除、编辑、更新、数据库检索、ES 灵活检索
-- 帖子点赞、取消点赞
-- 帖子收藏、取消收藏、检索已收藏帖子
-- 帖子全量同步 ES、增量同步 ES 定时任务
-- 支持微信开放平台登录
-- 支持微信公众号订阅、收发消息、设置菜单
-- 支持分业务的文件上传
+### 基础架构
 
-### 单元测试
+基础架构：客户端输入分析诉求和原始数据，向业务后端发送请求。业务后端利用AI服务处理客户端数据，保持到数据库，并生成图表。处理后的数据由业务后端发送给AI服务，AI服务生成结果并返回给后端，最终将结果返回给客户端展示。
 
-- JUnit5 单元测试
-- 示例单元测试类
+![](https://user-images.githubusercontent.com/94662685/248857523-deff2de3-c370-4a9a-9628-723ace5ab4b3.png)
 
-### 架构设计
+### 优化项目架构-异步化处理
 
-- 合理分层
+优化流程（异步化）：客户端输入分析诉求和原始数据，向业务后端发送请求。业务后端将请求事件放入消息队列，并为客户端生成取餐号，让要生成图表的客户端去排队，消息队列根据I服务负载情况，定期检查进度，如果AI服务还能处理更多的图表生成请求，就向任务处理模块发送消息。
+
+任务处理模块调用AI服务处理客户端数据，AI 服务异步生成结果返回给后端并保存到数据库，当后端的AI工服务生成完毕后，可以通过向前端发送通知的方式，或者通过业务后端监控数据库中图表生成服务的状态，来确定生成结果是否可用。若生成结果可用，前端即可获取并处理相应的数据，最终将结果返回给客户端展示。在此期间，用户可以去做自己的事情。
+![image](https://user-images.githubusercontent.com/94662685/248858431-6dbf41e0-adfe-40cf-94da-f3db6c73b69d.png)
 
 
-## 快速上手
 
-> 所有需要修改的地方鱼皮都标记了 `todo`，便于大家找到修改的位置~
+### 目录结构
+
+```shell
+
++---.idea
++---sql		// SQL代码
++---src
+|   +---main
+|   |   +---java
+|   |   |   \---com
+|   |   |       \---liangshou
+|   |   |           \---springbootinit
+|   |   |               +---annotation	// 权限控制
+|   |   |               +---aop
+|   |   |               +---api
+|   |   |               +---bizmq		// MQ配置
+|   |   |               +---common		// 通用类
+|   |   |               +---config		// 项目配置类
+|   |   |               +---constant	// 项目常量类
+|   |   |               +---controller	// 前端请求接口
+|   |   |               +---esdao
+|   |   |               +---exception	// 全局异常处理类
+|   |   |               +---job
+|   |   |               |   +---cycle
+|   |   |               |   \---once
+|   |   |               +---manager	// 项目管理类
+|   |   |               +---mapper	// 数据访问层
+|   |   |               +---model	// 项目实体类
+|   |   |               |   +---dto
+|   |   |               |   |   +---chart
+|   |   |               |   |   +---file
+|   |   |               |   |   +---post
+|   |   |               |   |   +---postfavour
+|   |   |               |   |   +---postthumb
+|   |   |               |   |   \---user
+|   |   |               |   +---entity
+|   |   |               |   +---enums
+|   |   |               |   \---vo
+|   |   |               +---mq
+|   |   |               +---service
+|   |   |               |   \---impl
+|   |   |               \---utils
+|   |   \---resources
+|   |       +---mapper
+|   |       \---META-INF
+|   \---test	//测试单元
+|       \---java
+|           \---com
+|               +---liangshou
+|                   \---springbootinit
+|                       +---bizmq
+|                       +---esdao
+|                       +---manager
+|                       +---mapper
+|                       +---service
+|                       \---utils
+|               
+\---target
+```
+
+
+
+## 快速启动 
+
+1. 下载/拉取本项目到本地
+2. 通过 IDEA 打开项目，等待依赖的下载
+3. 修改配置文件 `application.yaml` 的信息，例如数据库、Redis、RabbitMQ配置等
+4. 修改配置信息完成后，运行 `MainApplication` 程序启动项目
 
 ### MySQL 数据库
 
@@ -91,7 +148,7 @@ spring:
 
 2）执行 `sql/create_table.sql` 中的数据库语句，自动创建库表
 
-3）启动项目，访问 `http://localhost:8101/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
+3）启动项目，访问 `http://localhost:8080/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了
 
 ![](doc/swagger.png)
 
@@ -132,34 +189,3 @@ spring:
 @SpringBootApplication
 ```
 
-### Elasticsearch 搜索引擎
-
-1）修改 `application.yml` 的 Elasticsearch 配置为你自己的：
-
-```yml
-spring:
-  elasticsearch:
-    uris: http://localhost:9200
-    username: root
-    password: 123456
-```
-
-2）复制 `sql/post_es_mapping.json` 文件中的内容，通过调用 Elasticsearch 的接口或者 Kibana Dev Tools 来创建索引（相当于数据库建表）
-
-```
-PUT post_v1
-{
- 参数见 sql/post_es_mapping.json 文件
-}
-```
-
-这步不会操作的话需要补充下 Elasticsearch 的知识，或者自行百度一下~
-
-3）开启同步任务，将数据库的帖子同步到 Elasticsearch
-
-找到 job 目录下的 `FullSyncPostToEs` 和 `IncSyncPostToEs` 文件，取消掉 `@Component` 注解的注释，再次执行程序即可触发同步：
-
-```java
-// todo 取消注释开启任务
-//@Component
-```
