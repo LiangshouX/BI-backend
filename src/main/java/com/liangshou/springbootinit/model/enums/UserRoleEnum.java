@@ -3,6 +3,8 @@ package com.liangshou.springbootinit.model.enums;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
@@ -11,6 +13,7 @@ import org.apache.commons.lang3.ObjectUtils;
  * @author liangshou
  * 
  */
+@Getter
 public enum UserRoleEnum {
 
     USER("用户", "user"),
@@ -53,11 +56,4 @@ public enum UserRoleEnum {
         return null;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getText() {
-        return text;
-    }
 }
