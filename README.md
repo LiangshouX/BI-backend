@@ -36,7 +36,7 @@
 
 ### 2. 技术选型
 
-* Java Spring Boot（使用[编程导航知识星球](https://yupi.icu) 提供发热模版来初始化）
+* Java Spring Boot（使用[编程导航知识星球](https://yupi.icu) 的模版来初始化）
 * MySQL数据库
 * MyBatis-plus 及 MybatX自动生成
 * Redis + Redisson限流
